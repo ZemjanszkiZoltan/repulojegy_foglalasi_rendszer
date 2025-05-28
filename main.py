@@ -2,6 +2,15 @@
 
 from utils.adatkezelo import inicializal_rendszer
 from models.jegyfoglalas import JegyFoglalas
+from datetime import datetime
+
+def datum_ervenyes(datum_str):
+    try:
+        datum = datetime.strptime(datum_str, "%Y-%m-%d")
+        return datum >= datetime.today()
+    except ValueError:
+        return False
+
 
 def main():
     legitarsasag, foglalasok = inicializal_rendszer()
@@ -21,6 +30,10 @@ def main():
             legitarsasag.jaratok_listazasa()
             jaratszam = input("Járatszám: ")
             datum = input("Utazás dátuma (ÉÉÉÉ-HH-NN): ")
+            if not datum_ervenyes(datum):
+                print("Hiba: Érvénytelen vagy múltbeli dátum.")
+                continue
+
 
             # Keresd meg a járatot a légitársaság járatai között
             jarat = next((j for j in legitarsasag.jaratok if j.jaratszam == jaratszam), None)
