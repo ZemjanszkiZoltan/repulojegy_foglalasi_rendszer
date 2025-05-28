@@ -1,5 +1,7 @@
 # utils/adatkezelo.py
 
+import json
+import os
 from models.belfoldi_jarat import BelfoldiJarat
 from models.nemzetkozi_jarat import NemzetkoziJarat
 from models.legitarsasag import LegiTarsasag
@@ -7,10 +9,8 @@ from models.jegyfoglalas import JegyFoglalas
 
 def inicializal_rendszer():
     """
-    Létrehozza a légitársaságot, járatokat és előre betölti a foglalásokat.
-    Visszatér egy tuple-el: (legitarsasag, foglalasok)
+    Létrehozza a légitársaságot, járatokat és betölti a foglalásokat.
     """
-    # Létrehozzuk a légitársaságot
     legitarsasag = LegiTarsasag("SkyLine Airlines")
 
     # Létrehozunk 3 járatot
@@ -18,19 +18,47 @@ def inicializal_rendszer():
     jarat2 = BelfoldiJarat("B002", "Debrecen", 10000)
     jarat3 = NemzetkoziJarat("N001", "London", 80000)
 
-    # Hozzáadjuk a járatokat a légitársasághoz
     legitarsasag.jarat_hozzaadasa(jarat1)
     legitarsasag.jarat_hozzaadasa(jarat2)
     legitarsasag.jarat_hozzaadasa(jarat3)
 
-    # Előre betöltött foglalások
-    foglalasok = [
-        JegyFoglalas("Kiss Anna", jarat1, "2025-06-01"),
-        JegyFoglalas("Nagy Péter", jarat2, "2025-06-02"),
-        JegyFoglalas("Tóth Gábor", jarat3, "2025-06-03"),
-        JegyFoglalas("Kovács Júlia", jarat1, "2025-06-04"),
-        JegyFoglalas("Szabó Zsolt", jarat2, "2025-06-05"),
-        JegyFoglalas("Németh László", jarat3, "2025-06-06"),
-    ]
+    # Csak töltsük be a foglalásokat a JSON-ból
+    foglalasok = foglalasok_betoltese(legitarsasag)
+
+    # Nem kell alapfoglalásokat generálni, mert már van a JSON fájlban
 
     return legitarsasag, foglalasok
+
+def foglalasok_mentese(foglalasok, fajlnev="foglalasok.json"):
+    """
+    Elmenti a foglalásokat JSON fájlba.
+    """
+    adat = []
+    for f in foglalasok:
+        adat.append({
+            "utas_neve": f.utas_neve,
+            "jaratszam": f.jarat.jaratszam,
+            "datum": f.datum
+        })
+    with open(fajlnev, "w", encoding="utf-8") as f:
+        json.dump(adat, f, ensure_ascii=False, indent=4)
+
+
+def foglalasok_betoltese(legitarsasag, fajlnev="foglalasok.json"):
+    """
+    Betölti a foglalásokat a JSON fájlból, és visszaadja a JegyFoglalas listát.
+    """
+    from models.jegyfoglalas import JegyFoglalas
+
+    if not os.path.exists(fajlnev):
+        return []
+
+    with open(fajlnev, "r", encoding="utf-8") as f:
+        adat = json.load(f)
+
+    foglalasok = []
+    for elem in adat:
+        jarat = next((j for j in legitarsasag.jaratok if j.jaratszam == elem["jaratszam"]), None)
+        if jarat:
+            foglalasok.append(JegyFoglalas(elem["utas_neve"], jarat, elem["datum"]))
+    return foglalasok

@@ -1,6 +1,7 @@
 # main.py
 
-from utils.adatkezelo import inicializal_rendszer
+import json
+from utils.adatkezelo import inicializal_rendszer, foglalasok_betoltese, foglalasok_mentese
 from models.jegyfoglalas import JegyFoglalas
 from datetime import datetime
 
@@ -11,9 +12,9 @@ def datum_ervenyes(datum_str):
     except ValueError:
         return False
 
-
 def main():
-    legitarsasag, foglalasok = inicializal_rendszer()
+    legitarsasag, alap_foglalasok = inicializal_rendszer()
+    foglalasok = foglalasok_betoltese(legitarsasag)
 
     while True:
         print("\n=== Repülőjegy Foglalási Rendszer ===")
@@ -34,12 +35,12 @@ def main():
                 print("Hiba: Érvénytelen vagy múltbeli dátum.")
                 continue
 
-
             # Keresd meg a járatot a légitársaság járatai között
             jarat = next((j for j in legitarsasag.jaratok if j.jaratszam == jaratszam), None)
             if jarat:
                 uj_foglalas = JegyFoglalas(utas_nev, jarat, datum)
                 foglalasok.append(uj_foglalas)
+                foglalasok_mentese(foglalasok)  # Mentsük a fájlba is!
                 print(f"Sikeres foglalás! Ár: {jarat.jegyar} Ft")
             else:
                 print("Hiba: A megadott járatszám nem létezik.")
@@ -52,6 +53,7 @@ def main():
             foglalas = next((f for f in foglalasok if f.utas_neve == utas_nev and f.jarat.jaratszam == jaratszam), None)
             if foglalas:
                 foglalasok.remove(foglalas)
+                foglalasok_mentese(foglalasok)  # Mentsük a fájlba is!
                 print("Foglalás sikeresen törölve!")
             else:
                 print("Hiba: A megadott foglalás nem található.")

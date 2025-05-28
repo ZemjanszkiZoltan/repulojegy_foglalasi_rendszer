@@ -1,0 +1,32 @@
+[
+    {
+        "utas_neve": "Kiss Anna",
+        "jaratszam": "B001",
+        "datum": "2025-06-01"
+    },
+    {
+        "utas_neve": "Nagy Péter",
+        "jaratszam": "B002",
+        "datum": "2025-06-02"
+    },
+    {
+        "utas_neve": "Tóth Gábor",
+        "jaratszam": "N001",
+        "datum": "2025-06-03"
+    },
+    {
+        "utas_neve": "Kovács Júlia",
+        "jaratszam": "B001",
+        "datum": "2025-06-04"
+    },
+    {
+        "utas_neve": "Szabó Zsolt",
+        "jaratszam": "B002",
+        "datum": "2025-06-05"
+    },
+    {
+        "utas_neve": "Németh László",
+        "jaratszam": "N001",
+        "datum": "2025-06-06"
+    }
+]
